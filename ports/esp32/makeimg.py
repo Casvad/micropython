@@ -34,6 +34,7 @@ def load_sdkconfig_str_value(filename, value, default):
 
 
 def load_partition_table(filename):
+    print("Opening partition table: ", filename)
     with open(filename, "rb") as f:
         return gen_esp32part.PartitionTable.from_binary(f.read())
 
