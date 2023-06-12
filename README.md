@@ -11,6 +11,30 @@ git submodule update
 make
 ```
 
+# Example of usage
+
+```python
+import devices.rfid as rfid
+import kangaroo
+import json
+
+
+def main():
+    device = {
+        "id": "Esp32Device",
+        "location": "Villavicencio"
+    }
+    
+    k = kangaroo.from_configuration(device["id"], {"host": "https://a516-181-51-34-1.ngrok.io",
+                                                   "token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjYXJsb3NAc3VtZXJsYWJzLmNvbSIsImV4cCI6MTY5MDIwOTUxMH0.QUfPiy7pSnsojgAlrSpDFIVO-AiPQT61x6kFQc8Krws",
+                                                   "network_name": "Carlos iPhone", "network_password": "casvad123"})
+    r = rfid.MFRC522(18, 23, 19, 5)
+
+    while True:
+        product_id = r.read_rfid()
+        k.send_message(json.dumps({"product_id": product_id, "location": device["location"]}))
+```
+
 The MicroPython project
 =======================
 <p align="center">

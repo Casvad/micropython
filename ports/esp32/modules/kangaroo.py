@@ -7,14 +7,25 @@ import machine
 import time
 import json
 import http_client
+import boot
+import os
 
 
 class KangarooService:
 
     def __init__(self, configuration):
+        self.device_id = None
+        self.device_keys = None
+        self.device_address = None
         self.configuration = configuration
+        self.filename = "data.txt"
+        self.file_separator = "||"
 
     def create_device(self, device_id):
+
+        self.get_device_data()
+        if self.device_id is not None:
+            return
         device_response = http_client.post(self.configuration["host"] + "/devices", json={"mac": device_id},
                                            headers={"Authorization": self.configuration["token"]})
 
@@ -34,6 +45,7 @@ class KangarooService:
                                              headers={"Authorization": self.configuration["token"]})
 
         self.device_address = device_details["digital_twin"]
+        self.save_device_data(self.device_id, self.device_keys, self.device_address)
 
     def connect_to_internet(self):
         print("Init internet connection")
@@ -66,6 +78,20 @@ class KangarooService:
                 time.sleep(1)
 
         return message_response
+
+    def save_device_data(self, device_id, device_key, device_address):
+        f = open(self.filename, "w")
+        f.write(device_id + self.file_separator + device_key + self.file_separator + device_address)
+        f.close()
+
+    def get_device_data(self):
+        if self.filename in os.listdir():
+            f = open(self.filename, "r")
+            content = f.read().split(self.file_separator)
+            f.close()
+            self.device_id = content[0]
+            self.device_keys = content[1]
+            self.device_address = content[2]
 
 
 def from_configuration(device_id, configuration):
